@@ -272,7 +272,7 @@ class KeyboardControl(object):
         """
         parse key events
         """
-        self._control.throttle = 1.0 if keys[K_UP] or keys[K_w] else 0.0
+        self._control.throttle = 0.5 if keys[K_UP] or keys[K_w] else 0.0
         steer_increment = 5e-4 * milliseconds
         if keys[K_LEFT] or keys[K_a]:
             self._steer_cache -= steer_increment

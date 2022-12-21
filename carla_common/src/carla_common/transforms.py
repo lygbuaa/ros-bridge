@@ -281,6 +281,9 @@ def carla_transform_to_ros_pose(carla_transform):
 
     return ros_pose
 
+def carla_transform_to_ros_rpy(carla_transform):
+    roll, pitch, yaw = carla_rotation_to_RPY(carla_transform.rotation)
+    return roll, pitch, yaw
 
 def carla_location_to_pose(carla_location):
     """

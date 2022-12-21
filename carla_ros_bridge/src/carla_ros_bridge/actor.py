@@ -64,6 +64,10 @@ class Actor(PseudoActor):
         return trans.carla_transform_to_ros_pose(
             self.carla_actor.get_transform())
 
+    def get_current_ros_rpy(self):
+        return trans.carla_transform_to_ros_rpy(
+            self.carla_actor.get_transform())
+
     def get_current_ros_transform(self):
         """
         Function to provide the current ROS pose

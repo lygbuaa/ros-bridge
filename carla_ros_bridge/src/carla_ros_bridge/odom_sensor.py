@@ -66,6 +66,11 @@ class OdometrySensor(PseudoActor):
         try:
             odometry.pose.pose = self.parent.get_current_ros_pose()
             odometry.twist.twist = self.parent.get_current_ros_twist_rotated()
+            roll, pitch, yaw = self.parent.get_current_ros_rpy()
+            odometry.pose.covariance[0] = roll
+            odometry.pose.covariance[1] = pitch
+            odometry.pose.covariance[2] = yaw
+            odometry.pose.covariance[3] = 7.77
         except AttributeError:
             # parent actor disappeared, do not send tf
             self.node.logwarn(
