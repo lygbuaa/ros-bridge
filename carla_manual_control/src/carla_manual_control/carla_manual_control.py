@@ -151,7 +151,7 @@ class ManualControl(CompatibleNode):
 
         if self._surface is not None:
             display.blit(self._surface, (0, 0))
-        self.hud.render(display)
+        # self.hud.render(display)
 
 # ==============================================================================
 # -- KeyboardControl -----------------------------------------------------------
@@ -615,7 +615,7 @@ def main(args=None):
     roscomp.init("manual_control", args=args)
 
     # resolution should be similar to spawned camera with role-name 'view'
-    resolution = {"width": 800, "height": 600}
+    resolution = {"width": 400, "height": 300}
 
     pygame.init()
     pygame.font.init()
