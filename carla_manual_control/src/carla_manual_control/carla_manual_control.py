@@ -31,6 +31,7 @@ from __future__ import print_function
 import datetime
 import math
 from threading import Thread
+import json
 
 import numpy
 from transforms3d.euler import quat2euler
@@ -104,6 +105,8 @@ class ManualControl(CompatibleNode):
             CarlaLaneInvasionEvent, "/carla/{}/lane_invasion".format(self.role_name),
             self.on_lane_invasion, qos_profile=10)
 
+        self.vehicle_status_list = []
+
     def on_collision(self, data):
         """
         Callback on collision event
@@ -139,11 +142,16 @@ class ManualControl(CompatibleNode):
         array = array[:, :, ::-1]
         self._surface = pygame.surfarray.make_surface(array.swapaxes(0, 1))
 
+        # start record after manual override
+        if self.controller.vehicle_control_manual_override:
+            status_str = self.hud.get_vehicle_status()
+            self.vehicle_status_list.append(status_str)
+        # self.logwarn("vehicle status: {}".format(status_str))
+
     def render(self, game_clock, display):
         """
         render the current image
         """
-
         do_quit = self.controller.parse_events(game_clock)
         if do_quit:
             return
@@ -152,6 +160,14 @@ class ManualControl(CompatibleNode):
         if self._surface is not None:
             display.blit(self._surface, (0, 0))
         # self.hud.render(display)
+
+    def save_vehicle_trajectory(self, filepath="./data/carla_parking_traj.json"):
+        N = len(self.vehicle_status_list)
+        self.logwarn("saving parking traj: {}".format(N))
+        with open(filepath, "w") as fout:
+            for i in range(N):
+                status_str = self.vehicle_status_list[i] + "\n"
+                fout.writelines(status_str)
 
 # ==============================================================================
 # -- KeyboardControl -----------------------------------------------------------
@@ -235,6 +251,10 @@ class KeyboardControl(object):
                 elif event.key == K_b:
                     self.vehicle_control_manual_override = not self.vehicle_control_manual_override
                     self.set_vehicle_control_manual_override(self.vehicle_control_manual_override)
+                    # init throttle && brake
+                    self._control.throttle = 0.0
+                    self._control.brake = 0.0
+
                 if event.key == K_q:
                     self._control.gear = 1 if self._control.reverse else -1
                 elif event.key == K_m:
@@ -265,6 +285,8 @@ class KeyboardControl(object):
         if not self._autopilot_enabled and self.vehicle_control_manual_override:
             try:
                 self.vehicle_control_publisher.publish(self._control)
+                # current_location = self.ego_vehicle.get_location()
+                # self.node.logwarn("send vehicle control, throttle: {}, steer: {}, brake: {}, gear: {}, reverse: {}".format(self._control.throttle, self._control.steer, self._control.brake, self._control.gear, self._control.reverse))
             except Exception as error:
                 self.node.logwarn("Could not send vehicle control: {}".format(error))
 
@@ -272,8 +294,23 @@ class KeyboardControl(object):
         """
         parse key events
         """
-        self._control.throttle = 0.5 if keys[K_UP] or keys[K_w] else 0.0
-        steer_increment = 5e-4 * milliseconds
+        # self._control.throttle = 0.5 if keys[K_UP] or keys[K_w] else 0.0
+        # self._control.brake = 1.0 if keys[K_DOWN] or keys[K_s] else 0.0
+
+        if keys[K_UP] or keys[K_w]:
+            self._control.brake = 0.0
+            self._control.throttle = min(self._control.throttle + 0.01, 0.3)
+        # else:
+        #     self._control.throttle = 0.0
+
+        if keys[K_DOWN] or keys[K_s]:
+            self._control.throttle = 0.0
+            self._control.brake = min(self._control.brake + 0.2, 1.0)
+        # else:
+        #     self._control.brake = 0.0
+
+        # steer control
+        steer_increment = 2e-4 * milliseconds
         if keys[K_LEFT] or keys[K_a]:
             self._steer_cache -= steer_increment
         elif keys[K_RIGHT] or keys[K_d]:
@@ -282,7 +319,6 @@ class KeyboardControl(object):
             self._steer_cache = 0.0
         self._steer_cache = min(0.7, max(-0.7, self._steer_cache))
         self._control.steer = round(self._steer_cache, 1)
-        self._control.brake = 1.0 if keys[K_DOWN] or keys[K_s] else 0.0
         self._control.hand_brake = bool(keys[K_SPACE])
 
     @staticmethod
@@ -461,6 +497,21 @@ class HUD(object):
             self._info_text += [('Sync mode running:', self.carla_status.synchronous_mode_running)]
         self._info_text += ['', '', 'Press <H> for help']
 
+    def get_vehicle_status(self):
+        status = {}
+        status["time"] = self.node.get_time()
+        status["x"] = self.x
+        status["y"] = self.y
+        status["yaw"] = self.yaw
+        status["velocity"] = self.vehicle_status.velocity # m/s
+        status["throttle"] = self.vehicle_status.control.throttle
+        status["steer"] = self.vehicle_status.control.steer
+        status["brake"] = self.vehicle_status.control.brake
+        status["reverse"] = self.vehicle_status.control.reverse
+        status["hand_brake"] = self.vehicle_status.control.hand_brake
+        status_str = json.dumps(status)
+        return status_str
+
     def toggle_info(self):
         """
         show/hide the info text
@@ -621,11 +672,11 @@ def main(args=None):
     pygame.font.init()
     pygame.display.set_caption("CARLA ROS manual control")
 
+    manual_control_node = ManualControl(resolution)
+
     try:
         display = pygame.display.set_mode((resolution['width'], resolution['height']),
                                           pygame.HWSURFACE | pygame.DOUBLEBUF)
-
-        manual_control_node = ManualControl(resolution)
         clock = pygame.time.Clock()
 
         executor = roscomp.executors.MultiThreadedExecutor()
@@ -635,12 +686,15 @@ def main(args=None):
         spin_thread.start()
 
         while roscomp.ok():
-            clock.tick_busy_loop(60)
+            clock.tick_busy_loop(20)
             if manual_control_node.render(clock, display):
                 return
             pygame.display.flip()
+
     except KeyboardInterrupt:
         roscomp.loginfo("User requested shut down.")
+        # save trajectory
+        manual_control_node.save_vehicle_trajectory(filepath="/home/hugoliu/github/catkin_ws/src/ros-bridge/data/carla_parking_traj.json")
     finally:
         roscomp.shutdown()
         spin_thread.join()
