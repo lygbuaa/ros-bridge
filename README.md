@@ -1,3 +1,9 @@
+# run pseudo_planning_control
+1. run carla_manual_control, then press `K_SPACE`, pseudo_planning_control will take over the vehicle.
+
+# save traj file
+1. run carla_manual_control, the trajectory will be saved to "/home/hugoliu/github/catkin_ws/src/ros-bridge/data/carla_parking_traj.json"
+
 # run ros-bridge parking demo
 0. set up ros2 enviroment `source /opt/ros/foxy/setup.bash`,  `source ./install/setup.bash`
 1. start the basic ROS bridge package `ros2 launch carla_ros_bridge carla_ros_bridge_parking.launch.py`

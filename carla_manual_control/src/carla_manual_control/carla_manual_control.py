@@ -75,6 +75,7 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import NavSatFix
 from std_msgs.msg import Bool
+from carla_manual_control.pseudo_planning_control import PseudoPlanningControl
 
 # ==============================================================================
 # -- World ---------------------------------------------------------------------
@@ -92,6 +93,7 @@ class ManualControl(CompatibleNode):
         self.role_name = self.get_param("role_name", "ego_vehicle")
         self.hud = HUD(self.role_name, resolution['width'], resolution['height'], self)
         self.controller = KeyboardControl(self.role_name, self.hud, self)
+        self.pseudo_pnc = PseudoPlanningControl(self, filepath="/home/hugoliu/github/catkin_ws/src/ros-bridge/data/carla_parking_traj_051701.json")
 
         self.image_subscriber = self.new_subscription(
             Image, "/carla/{}/rgb_view/image".format(self.role_name),
@@ -147,6 +149,8 @@ class ManualControl(CompatibleNode):
             status_str = self.hud.get_vehicle_status()
             self.vehicle_status_list.append(status_str)
         # self.logwarn("vehicle status: {}".format(status_str))
+        if not self.controller.flag_hand_brake:
+            self.pseudo_pnc.next_step(self.hud.x, self.hud.y)
 
     def render(self, game_clock, display):
         """
@@ -183,6 +187,8 @@ class KeyboardControl(object):
         self.role_name = role_name
         self.hud = hud
         self.node = node
+        # when hand_brake set False, start PseudoPlanningControl
+        self.flag_hand_brake = True
 
         self._autopilot_enabled = False
         self._control = CarlaEgoVehicleControl()
@@ -269,8 +275,11 @@ class KeyboardControl(object):
                 elif event.key == K_p:
                     self._autopilot_enabled = not self._autopilot_enabled
                     self.set_autopilot(self._autopilot_enabled)
-                    self.hud.notification('Autopilot %s' %
-                                          ('On' if self._autopilot_enabled else 'Off'))
+                    self.hud.notification('Autopilot %s' % ('On' if self._autopilot_enabled else 'Off'))
+                elif event.key == K_SPACE:
+                    self.flag_hand_brake = not self.flag_hand_brake
+                    self.node.logwarn("set hand brake: {}".format(self.flag_hand_brake))
+
         if not self._autopilot_enabled and self.vehicle_control_manual_override:
             self._parse_vehicle_keys(pygame.key.get_pressed(), clock.get_time())
             self._control.reverse = self._control.gear < 0
