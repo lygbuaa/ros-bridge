@@ -49,10 +49,8 @@ class PseudoPlanningControl(object):
 
         if len(self.traj_d) > 0:
             waypoint = self.traj_d.pop(0)
-            self.ctrl_msg.gear = 1
         elif len(self.traj_r) > 0:
             waypoint = self.traj_r.pop(0)
-            self.ctrl_msg.gear = 0
         else:
             waypoint = None
 
@@ -61,11 +59,13 @@ class PseudoPlanningControl(object):
             self.ctrl_msg.throttle = waypoint["throttle"]
             self.ctrl_msg.steer = waypoint["steer"]
             self.ctrl_msg.brake = waypoint["brake"]
+            self.ctrl_msg.gear = waypoint["gear"]
             self.ctrl_msg.hand_brake = False
         else:
             self.ctrl_msg.throttle = 0.0
             self.ctrl_msg.steer = 0.0
             self.ctrl_msg.brake = 1.0
+            self.ctrl_msg.gear = 0
             self.ctrl_msg.hand_brake = True
 
         try:

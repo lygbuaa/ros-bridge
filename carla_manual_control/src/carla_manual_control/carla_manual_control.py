@@ -93,7 +93,7 @@ class ManualControl(CompatibleNode):
         self.role_name = self.get_param("role_name", "ego_vehicle")
         self.hud = HUD(self.role_name, resolution['width'], resolution['height'], self)
         self.controller = KeyboardControl(self.role_name, self.hud, self)
-        self.pseudo_pnc = PseudoPlanningControl(self, filepath="/home/hugoliu/github/catkin_ws/src/ros-bridge/data/carla_parking_traj_051701.json")
+        self.pseudo_pnc = PseudoPlanningControl(self, filepath="/home/hugoliu/github/catkin_ws/src/ros-bridge/data/carla_parking_traj_051801.json")
 
         self.image_subscriber = self.new_subscription(
             Image, "/carla/{}/rgb_view/image".format(self.role_name),
@@ -517,6 +517,7 @@ class HUD(object):
         status["steer"] = self.vehicle_status.control.steer
         status["brake"] = self.vehicle_status.control.brake
         status["reverse"] = self.vehicle_status.control.reverse
+        status["gear"] = self.vehicle_status.control.gear
         status["hand_brake"] = self.vehicle_status.control.hand_brake
         status_str = json.dumps(status)
         return status_str

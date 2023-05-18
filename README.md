@@ -1,4 +1,5 @@
 # run pseudo_planning_control
+0. run carla_manual_control, then press `K_B`, drive the car manually.
 1. run carla_manual_control, then press `K_SPACE`, pseudo_planning_control will take over the vehicle.
 
 # save traj file
