@@ -11,7 +11,7 @@ def generate_launch_description():
         launch.actions.DeclareLaunchArgument(
             name='objects_definition_file',
             default_value=os.path.join(get_package_share_directory(
-                'carla_spawn_parking'), 'config', 'objects_microlino.json')
+                'carla_spawn_parking'), 'config', 'objects_lincoln.json')
         ),
         launch.actions.DeclareLaunchArgument(
             name='spawn_point_ego_vehicle',
