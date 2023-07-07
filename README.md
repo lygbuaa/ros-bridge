@@ -3,7 +3,10 @@
 1. run carla_manual_control, then press `K_SPACE`, pseudo_planning_control will take over the vehicle.
 
 # save traj file
-1. run carla_manual_control, the trajectory will be saved to "/home/hugoliu/github/catkin_ws/src/ros-bridge/data/carla_parking_traj.json"
+1. run carla_manual_control, the trajectory will be saved to "./carla_parking_traj.json"
+
+# copy data file
+1. CMakeLists.txt files take nothing effects, do it in setup.py instead.
 
 # run ros-bridge parking demo
 0. set up ros2 enviroment `source /opt/ros/foxy/setup.bash`,  `source ./install/setup.bash`

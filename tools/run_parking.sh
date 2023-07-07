@@ -25,6 +25,7 @@ ros2 launch carla_ros_bridge carla_ros_bridge_parking.launch.py &
 ros2 launch carla_spawn_parking carla_spawn_parking.launch.py &
 ros2 launch carla_manual_control carla_manual_control.launch.py
 
+sleep 1
 # kill carla_ros_bridge_parking
 kill -15 `ps -e | grep "bridge" | awk '{print $1}'`
 # kill carla_spawn_parking

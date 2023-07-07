@@ -93,7 +93,9 @@ class ManualControl(CompatibleNode):
         self.role_name = self.get_param("role_name", "ego_vehicle")
         self.hud = HUD(self.role_name, resolution['width'], resolution['height'], self)
         self.controller = KeyboardControl(self.role_name, self.hud, self)
-        self.pseudo_pnc = PseudoPlanningControl(self, filepath="/home/hugoliu/github/catkin_ws/ros-bridge/data/carla_parking_traj_051801.json")
+        self.traj_file = self.get_param("traj_file", "./carla_parking_traj.json")
+        self.logwarn("loading trajectory file: {}".format(self.traj_file))
+        self.pseudo_pnc = PseudoPlanningControl(self, filepath=self.traj_file)
 
         self.image_subscriber = self.new_subscription(
             Image, "/carla/{}/rgb_view/image".format(self.role_name),
@@ -165,7 +167,7 @@ class ManualControl(CompatibleNode):
             display.blit(self._surface, (0, 0))
         # self.hud.render(display)
 
-    def save_vehicle_trajectory(self, filepath="./data/carla_parking_traj.json"):
+    def save_vehicle_trajectory(self, filepath="./carla_parking_traj.json"):
         N = len(self.vehicle_status_list)
         self.logwarn("saving parking traj: {}".format(N))
         with open(filepath, "w") as fout:
@@ -308,7 +310,11 @@ class KeyboardControl(object):
 
         if keys[K_UP] or keys[K_w]:
             self._control.brake = 0.0
-            self._control.throttle = min(self._control.throttle + 0.01, 0.3)
+            # vehicle.lincoln.mkz_2017 needs smaller reverse throttle
+            if self._control.reverse:
+                self._control.throttle = min(self._control.throttle + 0.01, 0.2)
+            else:
+                self._control.throttle = min(self._control.throttle + 0.01, 0.4)
         # else:
         #     self._control.throttle = 0.0
 
@@ -319,7 +325,7 @@ class KeyboardControl(object):
         #     self._control.brake = 0.0
 
         # steer control
-        steer_increment = 2e-4 * milliseconds
+        steer_increment = 5e-4 * milliseconds
         if keys[K_LEFT] or keys[K_a]:
             self._steer_cache -= steer_increment
         elif keys[K_RIGHT] or keys[K_d]:
@@ -704,7 +710,7 @@ def main(args=None):
     except KeyboardInterrupt:
         roscomp.loginfo("User requested shut down.")
         # save trajectory
-        manual_control_node.save_vehicle_trajectory(filepath="/home/hugoliu/github/catkin_ws/src/ros-bridge/data/carla_parking_traj.json")
+        manual_control_node.save_vehicle_trajectory(filepath="./carla_parking_traj.json")
     finally:
         roscomp.shutdown()
         spin_thread.join()

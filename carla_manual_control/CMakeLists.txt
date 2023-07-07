@@ -23,6 +23,9 @@ if(${ROS_VERSION} EQUAL 1)
   install(DIRECTORY launch/
           DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
 
+  install(DIRECTORY data
+          DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/)
+
 elseif(${ROS_VERSION} EQUAL 2)
   find_package(ament_cmake REQUIRED)
   find_package(rclpy REQUIRED)
@@ -30,6 +33,7 @@ elseif(${ROS_VERSION} EQUAL 2)
 
   # Install launch files.
   install(DIRECTORY launch DESTINATION share/${PROJECT_NAME}/)
+  install(DIRECTORY data   DESTINATION share/${PROJECT_NAME}/)
 
   ament_package()
 

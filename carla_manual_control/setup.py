@@ -24,6 +24,8 @@ elif ROS_VERSION == 2:
         data_files=[
             ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
             ('share/' + package_name, ['package.xml']),
+            ('share/' + package_name + '/data',
+             ['data/carla_parking_traj_microlino_0517.json', 'data/carla_parking_traj_lincoln_0707.json']),
             (os.path.join('share', package_name), glob('launch/*.launch.py'))
         ],
         install_requires=['setuptools'],
