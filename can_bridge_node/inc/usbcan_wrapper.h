@@ -26,20 +26,21 @@ private:
     constexpr static unsigned int dev_idx_ = 0;
     constexpr static unsigned int BUF_MAX_ = 1000;
     unsigned int chn;
-    VCI_CAN_OBJ* buffer_;
+    /* one buffer for each channel */
+    VCI_CAN_OBJ* buffer_[2];
 
 public:
     UsbCanClassical()
     {
-        if(!init_usbcan()){
-            LOGPF("failed to init usbcan!");
-            abort();
-        }
+        // if(!init_usbcan()){
+        //     LOGPF("failed to init usbcan!");
+        //     abort();
+        // }
     }
 
     ~UsbCanClassical() 
     {
-        close_usbcan();
+        // close_usbcan();
     }
 
     bool init_usbcan()
@@ -59,16 +60,20 @@ public:
             std::string sn(info.str_Serial_Num, 20);
             std::string hw(info.str_hw_Type, 10);
             LOGPF("open device %d success, sn: %s, hw: %s, firmware: %d", dev_idx_, sn.c_str(), hw.c_str(), info.fw_Version);
+            return true;
         }else{
             LOGPF("open device %d error!", dev_idx_);
             return false;
         }
-        return true;
     }
 
     /* open usbcan channel with 500Kbps */
     bool open_usbcan(unsigned int chn)
     {
+        if(chn > 1){
+            LOGPF("channel %d overflow!", chn);
+            return false;
+        }
         VCI_INIT_CONFIG config;
         /* filter none */
         config.AccCode = 0;
@@ -90,7 +95,7 @@ public:
         }
 
         LOGPF("start can device %d channel %d, baudrate: 500Kbps", dev_idx_, chn);
-        buffer_ = new VCI_CAN_OBJ[BUF_MAX_];
+        buffer_[chn] = new VCI_CAN_OBJ[BUF_MAX_];
 
         return true;
     }
@@ -100,7 +105,8 @@ public:
         VCI_ResetCAN(VCI_USBCAN2, dev_idx_, 0);
         VCI_ResetCAN(VCI_USBCAN2, dev_idx_, 1);
         VCI_CloseDevice(VCI_USBCAN2, dev_idx_);
-        delete[] buffer_;
+        delete[] buffer_[0];
+        delete[] buffer_[1];
     }
 
     int send_frame(const CanFrameClassical_t& frame, unsigned int chn)
@@ -131,12 +137,12 @@ public:
     int recv_frame(FrameList_t& frames, unsigned int chn)
     {
         /* WaitTime = 100ms? */
-        int reclen = VCI_Receive(VCI_USBCAN2, dev_idx_, chn, buffer_, BUF_MAX_, 100);
+        int reclen = VCI_Receive(VCI_USBCAN2, dev_idx_, chn, buffer_[chn], BUF_MAX_, 100);
         for(int i=0; i<reclen; i++){
             CanFrameClassical_t frame;
-            frame.can_id = buffer_[i].ID;
-            frame.can_dlc = buffer_[i].DataLen;
-            memcpy(frame.data, buffer_[i].Data, frame.can_dlc);
+            frame.can_id = buffer_[chn][i].ID;
+            frame.can_dlc = buffer_[chn][i].DataLen;
+            memcpy(frame.data, buffer_[chn][i].Data, frame.can_dlc);
             frames.push(frame);
             // LOGPF("recv canid: 0x%03X, len: %d", frame.can_id, frame.can_dlc);
         }

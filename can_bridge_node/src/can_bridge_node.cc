@@ -19,10 +19,11 @@ int main(int argc, char **argv)
     RCLCPP_INFO(g_can_bridge_node->get_logger(), "config_file_path: %s\n", argv[1]);
 
     g_can_bridge_node -> init();
-    g_can_bridge_node -> run_test_loop();
+    // g_can_bridge_node -> run_test_loop();
 
     executor.spin();
     rclcpp::shutdown();
+    g_can_bridge_node -> destroy();
 
     return 0;
 }
