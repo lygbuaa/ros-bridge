@@ -1,0 +1,33 @@
+## prepare env
+1. run docker: 
+` docker run --gpus all -it -v `pwd`:`pwd` -w `pwd` --ipc=host \
+--device  /dev/dri	\
+--device  /dev/xdma0_bypass	\
+--device  /dev/xdma0_bypass_c2h_0 \
+--device  /dev/xdma0_bypass_h2c_0 \
+--device  /dev/xdma0_c2h_0  	\
+--device  /dev/xdma0_control  	\
+--device  /dev/xdma0_h2c_0  	\
+--device  /dev/xdma0_user  	\
+--device  /dev/xdma0_xvc		\
+--device  /dev/xdma0_events_0   	\
+--device  /dev/xdma0_events_1  	\
+--device  /dev/xdma0_events_2  	\
+--device  /dev/xdma0_events_3  	\
+--device  /dev/xdma0_events_4  	\
+--device  /dev/xdma0_events_5  	\
+--device  /dev/xdma0_events_6  	\
+--device  /dev/xdma0_events_7  	\
+--device  /dev/xdma0_events_8  	\
+--device  /dev/xdma0_events_9 	\
+--device  /dev/xdma0_events_10    \
+--device  /dev/xdma0_events_11  	\
+--device  /dev/xdma0_events_12  	\
+--device  /dev/xdma0_events_13  	\
+--device  /dev/xdma0_events_14   	\
+--device  /dev/xdma0_events_15	\
+-v /etc/localtime:/etc/localtime:ro \
+-v /tmp/.X11-unix:/tmp/.X11-unix \
+-e DISPLAY=unix$DISPLAY -e GDK_SCALE -e GDK_DPI_SCALE \
+--network host 	\
+osrf/ros:foxy-carla /bin/bash `

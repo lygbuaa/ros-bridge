@@ -29,7 +29,8 @@ elif ROS_VERSION == 2:
              ['resource/' + package_name]),
             ('share/' + package_name, ['package.xml']),
             ('share/' + package_name + '/config',
-             ['config/objects.json', 'config/objects_lite.json', 'config/objects_microlino.json', 'config/objects_lincoln.json']),
+             ['config/objects.json', 'config/objects_lite.json', 'config/objects_microlino.json', 'config/objects_lincoln.json', 'config/objects_microlino_pcie.json']),
+            # (os.path.join('share', package_name), glob('config/*.json')),
             (os.path.join('share', package_name), glob('launch/*.launch.py'))
         ],
         install_requires=['setuptools'],

@@ -1,0 +1,16 @@
+%YAML:1.0
+
+#common parameters
+image_front_topic: "/carla/ego_vehicle/camera_svc_front_pcie/image"
+image_left_topic: "/carla/ego_vehicle/camera_svc_left_pcie/image"
+image_rear_topic: "/carla/ego_vehicle/camera_svc_rear_pcie/image"
+image_right_topic: "/carla/ego_vehicle/camera_svc_right_pcie/image"
+
+image_front_chn: 7
+image_left_chn:  5
+image_rear_chn:  6
+image_right_chn: 4
+
+image_width: 640
+image_height: 360
+fps: 20
