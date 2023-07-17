@@ -1,0 +1,5 @@
+%YAML:1.0
+
+#common parameters
+can_name: "can0"  #"can0" for socketcan or "0" for usbcan
+
