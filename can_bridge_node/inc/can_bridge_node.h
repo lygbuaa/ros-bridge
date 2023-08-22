@@ -3,8 +3,8 @@
 
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <carla_msgs/msg/carla_ego_vehicle_control.hpp>
-#include "usbcan_wrapper.h"
-#include "logging_utils.h"
+#include "cxkj_canalyst2_wrapper.h"
+#include "itekon_x200_wrapper.h"
 
 typedef union
 {
@@ -29,7 +29,7 @@ private:
     static constexpr unsigned int CARLA_CONTROL_CMD_CANID_0_ = 0x240;
     static constexpr unsigned int CARLA_CONTROL_CMD_CANID_1_ = 0x250;
     static constexpr unsigned int CARLA_CONTROL_CMD_CANID_2_ = 0x260;
-    std::shared_ptr<UsbCanClassical> usbcan_wrapper_ = nullptr;
+    std::shared_ptr<UsbCanBase> usbcan_wrapper_ = nullptr;
     std::unique_ptr<std::thread> th_recv_ = nullptr;
     SpiCarlaControl_t spi_frame_;
     SpiCarlaControl_t spi_frame_last_;
@@ -59,7 +59,12 @@ public:
         memset(spi_frame_.buffer, 0, 24);
         memset(spi_frame_last_.buffer, 0, 24);
         pub_control_ = this->create_publisher<carla_msgs::msg::CarlaEgoVehicleControl>("/carla/ego_vehicle/vehicle_control_cmd", 10);
-        usbcan_wrapper_ = std::make_shared<UsbCanClassical>();
+
+#if USBCAN_TYPE == 0
+        usbcan_wrapper_ = std::make_shared<UsbCanClassicCxkj> ();
+#elif USBCAN_TYPE == 1
+        usbcan_wrapper_ = std::make_shared<UsbCanFDItekon> ();
+#endif
         if(!usbcan_wrapper_ -> init_usbcan()){
             RLOGF("failed to init usbcan!");
         }
@@ -76,7 +81,7 @@ public:
         usbcan_wrapper_ -> close_usbcan();
     }
 
-    bool process_can_frame_0(const CanFrameClassical_t& frame)
+    bool process_can_frame_0(const CanFrame_t& frame)
     {
         t_ = rclcpp::Clock().now();
         memset(spi_frame_.buffer, 0, 24);
@@ -84,13 +89,13 @@ public:
         return true;
     }
 
-    bool process_can_frame_1(const CanFrameClassical_t& frame)
+    bool process_can_frame_1(const CanFrame_t& frame)
     {
         memcpy(spi_frame_.buffer+8, frame.data, 8);
         return true;
     }
 
-    bool process_can_frame_2(const CanFrameClassical_t& frame)
+    bool process_can_frame_2(const CanFrame_t& frame)
     {
         static uint32_t counter = 0;
         memcpy(spi_frame_.buffer+16, frame.data, 8);
@@ -146,13 +151,13 @@ public:
     void recv_loop()
     {
         RLOGI("start recv thread.");
-        FrameList_t frames;
+        CanFrameList_t frames;
 
         while(rclcpp::ok())
         {
             if(usbcan_wrapper_->recv_frame(frames, CAN_RECV_CHANNEL_) > 0){
                 while(!frames.empty()){
-                    CanFrameClassical_t frame = frames.front();
+                    CanFrame_t frame = frames.front();
                     /* process frame */
                     switch(frame.can_id){
                         case CARLA_CONTROL_CMD_CANID_0_:
@@ -191,7 +196,7 @@ public:
     }
 
     void send_spi_frame(const SpiCarlaControl_t& spi_frame){
-        CanFrameClassical_t can_frame;
+        CanFrame_t can_frame;
         can_frame.can_dlc = 8;
 
         can_frame.can_id = CARLA_CONTROL_CMD_CANID_0_;

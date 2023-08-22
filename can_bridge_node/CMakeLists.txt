@@ -14,14 +14,28 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# "cxkj_canalyst2" or "itekon_x200"
+SET(USBCAN_MODEL "itekon_x200")
+message(WARNING "using usbcan ${USBCAN_MODEL}")
+if(${USBCAN_MODEL} STREQUAL "cxkj_canalyst2")
+  add_definitions(-DUSBCAN_TYPE=0)
+elseif(${USBCAN_MODEL} STREQUAL "itekon_x200")
+  add_definitions(-DUSBCAN_TYPE=1)
+else()
+  MESSAGE(FATAL_ERROR "invalid USBCAN_MODEL!")
+endif()
+
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(carla_msgs REQUIRED)
 
+ADD_SUBDIRECTORY (usbcan/itekon_canfd_linux/lib)
+
 include_directories(
   ${PROJECT_SOURCE_DIR}/
   ${PROJECT_SOURCE_DIR}/inc/
+  ${PROJECT_SOURCE_DIR}/usbcan/itekon_canfd_linux/lib
 )
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -47,7 +61,8 @@ ament_target_dependencies(${EXECUTABLE_NAME}
   carla_msgs
 )
 
-target_link_libraries(${EXECUTABLE_NAME} ${USBCAN_LIB})
+# build/can_bridge_node/usbcan/itekon_canfd_linux/lib/libiTekCANFD.so
+target_link_libraries(${EXECUTABLE_NAME} ${USBCAN_LIB} iTekCANFD)
 
 # install binary files
 install(TARGETS

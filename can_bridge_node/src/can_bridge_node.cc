@@ -6,10 +6,17 @@ int main(int argc, char **argv)
         LOGPF("argv[%d] = %s\n", i, argv[i]);
     }
 
-    _print_ros_env_();
+    // _print_ros_env_();
     rclcpp::init(argc, argv);
     // _run_logger_test_();
     rclcpp::executors::MultiThreadedExecutor executor;
+
+#if 0
+    UsbCanFDItekon itekon_dev;
+    itekon_dev.test_can_classic();
+    itekon_dev.test_canfd();
+    return 0;
+#endif
 
     auto g_can_bridge_node = std::make_shared<CanBridgeNode>();
 

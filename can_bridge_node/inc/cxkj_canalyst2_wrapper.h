@@ -1,36 +1,24 @@
 #pragma once
-#ifndef __USBCAN_WRAPPER_H__
-#define __USBCAN_WRAPPER_H__
+#ifndef __CXKJ_CANALYST2_H__
+#define __CXKJ_CANALYST2_H__
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <net/if.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <linux/can.h>
-#include <linux/can/raw.h>
-#include <errno.h>
-#include <queue>
+#include "usbcan_base.h"
 #include "usbcan/controlcan/controlcan.h"
 #include "logging_utils.h"
 
-typedef struct can_frame CanFrameClassical_t;
-typedef std::queue<CanFrameClassical_t> FrameList_t;
 
 /* chuang-xin-ke-ji CANalyst-II */
-class UsbCanClassical
+class UsbCanClassicCxkj : public UsbCanBase
 {
 private:
     constexpr static unsigned int dev_idx_ = 0;
-    constexpr static unsigned int BUF_MAX_ = 1000;
+    constexpr static unsigned int BUF_MAX_ = 10;
     unsigned int chn;
     /* one buffer for each channel */
     VCI_CAN_OBJ* buffer_[2];
 
 public:
-    UsbCanClassical()
+    UsbCanClassicCxkj() : UsbCanBase("UsbCanClassicCxkj")
     {
         // if(!init_usbcan()){
         //     LOGPF("failed to init usbcan!");
@@ -38,12 +26,12 @@ public:
         // }
     }
 
-    ~UsbCanClassical() 
+    ~UsbCanClassicCxkj() 
     {
         // close_usbcan();
     }
 
-    bool init_usbcan()
+    virtual bool init_usbcan() override
     {
         /* suppose we have at most 5 device */
         VCI_BOARD_INFO infos[5];
@@ -68,7 +56,7 @@ public:
     }
 
     /* open usbcan channel with 500Kbps */
-    bool open_usbcan(unsigned int chn)
+    virtual bool open_usbcan(unsigned int chn, int can_type=0) override
     {
         if(chn > 1){
             LOGPF("channel %d overflow!", chn);
@@ -79,7 +67,10 @@ public:
         config.AccCode = 0;
         config.AccMask = 0xFFFFFFFF;
         config.Filter = 1;
-        /* baudrate = 500Kbps */
+        /** 
+         * baudrate = 500Kbps 
+         * calc by USB_CAN TOOL
+         */
         config.Timing0 = 0x00;
         config.Timing1 = 0x1C;
         config.Mode = 0;
@@ -100,7 +91,7 @@ public:
         return true;
     }
 
-    void close_usbcan()
+    virtual void close_usbcan() override
     {
         VCI_ResetCAN(VCI_USBCAN2, dev_idx_, 0);
         VCI_ResetCAN(VCI_USBCAN2, dev_idx_, 1);
@@ -109,7 +100,7 @@ public:
         delete[] buffer_[1];
     }
 
-    int send_frame(const CanFrameClassical_t& frame, unsigned int chn)
+    virtual int send_frame(const CanFrame_t& frame, unsigned int chn) override
     {
         VCI_CAN_OBJ send[1];
         send[0].ID = frame.can_id;
@@ -124,22 +115,25 @@ public:
         //     send[0].Data[i] = frame.data[i];
         // }
 
-        if(VCI_Transmit(VCI_USBCAN2, dev_idx_, chn, send, 1) == 1){
+        if(VCI_Transmit(VCI_USBCAN2, dev_idx_, chn, send, 1) == 1)
+        {
             LOGPF("send frame %x success", frame.can_id);
             return frame.can_dlc;
-        }else{
+        }
+        else
+        {
             LOGPF("send frame %x fail", frame.can_id);
         }
 
         return -1;
     }
 
-    int recv_frame(FrameList_t& frames, unsigned int chn)
+    virtual int recv_frame(CanFrameList_t& frames, unsigned int chn) override
     {
         /* WaitTime = 100ms? */
-        int reclen = VCI_Receive(VCI_USBCAN2, dev_idx_, chn, buffer_[chn], BUF_MAX_, 100);
+        int reclen = VCI_Receive(VCI_USBCAN2, dev_idx_, chn, buffer_[chn], 1, 20);
         for(int i=0; i<reclen; i++){
-            CanFrameClassical_t frame;
+            CanFrame_t frame;
             frame.can_id = buffer_[chn][i].ID;
             frame.can_dlc = buffer_[chn][i].DataLen;
             memcpy(frame.data, buffer_[chn][i].Data, frame.can_dlc);
@@ -148,6 +142,16 @@ public:
         }
 
         return reclen;
+    }
+
+    virtual int send_frame(const CanfdFrame_t& frame, unsigned int chn) override
+    {
+        return -1;
+    }
+
+    virtual int recv_frame(CanfdFrameList_t& frames, unsigned int chn) override
+    {
+        return -1;
     }
 
 };

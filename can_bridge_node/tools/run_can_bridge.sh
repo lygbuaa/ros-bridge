@@ -20,6 +20,6 @@ export PRJ_PATH=$( find_ros2_ws_path )
 export ROS_LOG_DIR=${PRJ_PATH}/log
 source /opt/ros/foxy/setup.bash
 source ${PRJ_PATH}/install/setup.bash
-export LD_LIBRARY_PATH=${PRJ_PATH}/ros-bridge/can_bridge_node/usbcan/controlcan:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=${PRJ_PATH}/ros-bridge/can_bridge_node/usbcan/controlcan:${PRJ_PATH}/build/can_bridge_node/usbcan/itekon_canfd_linux/lib/:$LD_LIBRARY_PATH
 
 ros2 launch can_bridge_node can_bridge_node.launch.py
