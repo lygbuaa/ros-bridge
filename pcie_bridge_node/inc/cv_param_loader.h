@@ -17,12 +17,17 @@ public:
 
     int image_width_;
     int image_height_;
-    int fps_;
+    int image_fps_;
 
     int image_front_chn_;
     int image_left_chn_;
     int image_rear_chn_;
     int image_right_chn_;
+
+    int is_canfd_;
+    int canfd_fps_;
+    int canfd_arbi_baudrate_;
+    int canfd_data_baudrate_;
 
 private:
     std::string yaml_path_;
@@ -75,8 +80,14 @@ public:
 
         fs_["image_width"] >> image_width_;
         fs_["image_height"] >> image_height_;
-        fs_["fps"] >> fps_;
-        RLOGI("image_width: %d, image_height: %d, fps: %d", image_width_, image_height_, fps_);
+        fs_["image_fps"] >> image_fps_;
+        RLOGI("image_width: %d, image_height: %d, image_fps: %d", image_width_, image_height_, image_fps_);
+
+        fs_["canfd_arbi_baudrate"] >> canfd_arbi_baudrate_;
+        fs_["canfd_data_baudrate"] >> canfd_data_baudrate_;
+        fs_["is_canfd"] >> is_canfd_;
+        fs_["canfd_fps"] >> canfd_fps_;
+        RLOGI("is_canfd_: %d, canfd_fps_: %d, canfd_arbi_baudrate_: %d, canfd_data_baudrate_: %d", is_canfd_, canfd_fps_, canfd_arbi_baudrate_, canfd_data_baudrate_);
     }
 
 };

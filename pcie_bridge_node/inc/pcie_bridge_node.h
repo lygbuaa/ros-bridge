@@ -13,7 +13,8 @@ private:
     rclcpp::Time t_;
     std::shared_ptr<CvParamLoader> param_loader_ = nullptr;
     std::shared_ptr<AumoDevice> aumo_device_ = nullptr;
-    std::vector<aumo_channel_info_t> aumo_infos_;
+    std::vector<aumo_video_channel_info_t> aumo_video_infos_;
+    std::vector<aumo_canfd_channel_info_t> aumo_canfd_infos_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_img_front_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_img_left_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_img_rear_;
@@ -28,15 +29,15 @@ public:
     bool init(const std::string config_path)
     {
         param_loader_ = std::make_shared<CvParamLoader>(config_path);
-        for(int i=0; i<AUMO_CH_NUM_; i++)
+        for(int i=0; i<AUMO_VIDEO_CH_NUM_; i++)
         {
-            aumo_channel_info_t info;
+            aumo_video_channel_info_t info;
             info.ch = i;
             info.width = param_loader_->image_width_;
             info.height = param_loader_->image_height_;
             info.h_total = info.width;
             info.v_total = info.height;
-            info.fps = param_loader_->fps_;
+            info.fps = param_loader_->image_fps_;
             info.frame_period_nsec = 1e9 / info.fps;
             info.video_type = FB_YUYV8_422;
             info.gmsl_speed = GMSL_SPEED_3G;
@@ -44,11 +45,23 @@ public:
             float stride = (info.video_type==FB_RAW12) ? 1.5f : 2.0f;
             info.stride = (int)round(info.width * stride);
 
-            aumo_infos_.emplace_back(info);
+            aumo_video_infos_.emplace_back(info);
+        }
+
+        for (int i = 0; i < AUMO_CANFD_CH_NUM_; i++)
+        {
+            aumo_canfd_channel_info_t info;
+            info.ch = i;
+            info.is_canfd = (param_loader_->is_canfd_>0);
+            info.arbi_baud = param_loader_->canfd_arbi_baudrate_;
+            info.data_baud = param_loader_->canfd_data_baudrate_;
+            info.fps = param_loader_->canfd_fps_;
+            info.msg_period_nsec = 1e9 / info.fps;
+            aumo_canfd_infos_.emplace_back(info);
         }
 
         aumo_device_ = std::make_shared<AumoDevice>();
-        if(!aumo_device_->init_dev(aumo_infos_))
+        if(!aumo_device_->init_dev(aumo_video_infos_, aumo_canfd_infos_))
         {
             RLOGE("pcie card init error, quit!");
             abort();
@@ -140,7 +153,7 @@ public:
         yuvImage.create(rgbImage.rows, rgbImage.cols*2, CV_8UC2);
         cv::cvtColor(rgbImage, yuvImage, cv::COLOR_RGB2YUV);
 
-        aumo_channel_info_t& info = aumo_infos_[chn];
+        aumo_video_channel_info_t& info = aumo_video_infos_[chn];
 
         info.yuyvImage.clear();
         YUVToYUYV(yuvImage, info.yuyvImage);
@@ -164,8 +177,38 @@ public:
         return aumo_device_ -> inject_image(info);
     }
 
-    void run_test_loop()
-    {}
+    void test_canfd()
+    {
+        unsigned int msg_data[16]={0x11223344,0x55667788,0x99AABBCC,0xDDEEFF00, 0x11223344,0x55667788,0x99AABBCC,0xDDEEFF00, 0x11223344,0x55667788,0x99AABBCC,0xDDEEFF00, 0x11223344,0x55667788,0x99AABBCC,0xDDEEFF00};
+        int canid = 0x100;
+        for(int j=0; j<100; j++)
+        {
+
+            for (int i = 0; i < AUMO_CANFD_CH_NUM_; i++)
+            {
+                aumo_canfd_channel_info_t& info = aumo_canfd_infos_[i];
+                info.id = canid;
+                info.pdata = msg_data;
+                if(info.is_canfd)
+                {
+                    info.len = 64;
+                }
+                else
+                {
+                    info.len = 8;
+                }
+                aumo_device_ -> inject_canfd_msg(info);
+                RLOGI("chn[%d] inject canfd msg: 0x%x", i, canid);
+            }
+
+            canid += 1;
+            if(canid > 0x8ff)
+            {
+                canid = 0x100;
+            }
+            // usleep(100*1000);
+        }
+    }
 
 
 };
