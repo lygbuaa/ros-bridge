@@ -19,9 +19,9 @@ int main(int argc, char **argv)
     RCLCPP_INFO(g_pcie_bridge_node->get_logger(), "config_file_path: %s\n", argv[1]);
 
     g_pcie_bridge_node -> init(config_file_path);
-    // g_pcie_bridge_node -> test_canfd();
+    g_pcie_bridge_node -> test_canfd();
 
-    executor.spin();
+    // executor.spin();
     rclcpp::shutdown();
     g_pcie_bridge_node -> destroy();
 

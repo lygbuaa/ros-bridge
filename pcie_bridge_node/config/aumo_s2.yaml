@@ -1,6 +1,9 @@
 %YAML:1.0
 
-#common parameters
+# use this card, if multi-card exists, 0-19, 1-18
+pcie_card_id: 1
+
+# video parameters
 image_front_topic: "/carla/ego_vehicle/camera_svc_front_pcie/image"
 image_left_topic: "/carla/ego_vehicle/camera_svc_left_pcie/image"
 image_rear_topic: "/carla/ego_vehicle/camera_svc_rear_pcie/image"
@@ -13,4 +16,10 @@ image_right_chn: 4
 
 image_width: 640
 image_height: 360
-fps: 20
+image_fps: 20
+
+# canfd parameters
+is_canfd: 1
+canfd_fps: 10
+canfd_arbi_baudrate: 500000
+canfd_data_baudrate: 2000000

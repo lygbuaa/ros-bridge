@@ -43,31 +43,29 @@ ament_target_dependencies(${EXECUTABLE_NAME}
   std_msgs
   cv_bridge
 )
-
 target_link_libraries(${EXECUTABLE_NAME} ${AUMO_S2_LIB})
 
-# install binary files
-install(TARGETS
-${EXECUTABLE_NAME}
-  DESTINATION lib/${PROJECT_NAME}
+add_executable(test_canfd_bin  src/test_canfd.cc)
+ament_target_dependencies(test_canfd_bin
+  rclcpp 
+  std_msgs
+  cv_bridge
 )
+target_link_libraries(test_canfd_bin ${AUMO_S2_LIB})
 
-install(DIRECTORY
-  aumo_s2_sdk
-  DESTINATION lib/${PROJECT_NAME}
-)
+
+# install binary files
+install(TARGETS ${EXECUTABLE_NAME}   DESTINATION  lib/${PROJECT_NAME})
+install(TARGETS test_canfd_bin   DESTINATION  lib/${PROJECT_NAME})
+
+# install library
+install(DIRECTORY  aumo_s2_sdk  DESTINATION lib/${PROJECT_NAME})
 
 # install launch files.
-install(DIRECTORY
-  launch
-  DESTINATION share/${PROJECT_NAME}/
-)
+install(DIRECTORY   launch  DESTINATION share/${PROJECT_NAME}/)
 
 # install config files.
-install(DIRECTORY
-  config
-  DESTINATION share/${PROJECT_NAME}/
-)
+install(DIRECTORY  config  DESTINATION share/${PROJECT_NAME}/)
 
 # install assets files.
 # install(DIRECTORY
