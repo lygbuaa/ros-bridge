@@ -1,7 +1,7 @@
 %YAML:1.0
 
 # use this card, if multi-card exists, 0-19, 1-18
-pcie_card_id: 1
+pcie_card_id: 0
 
 # video parameters
 image_front_topic: "/carla/ego_vehicle/camera_svc_front_pcie/image"
@@ -17,6 +17,23 @@ image_right_chn: 4
 image_width: 640
 image_height: 360
 image_fps: 20
+
+signal_width: 800
+signal_height: 375
+
+#define PLAY_TIMESTAMP      0
+#define PLAY_TRIGGER_GPIO   1
+#define PLAY_NODELAY        2
+trigger_mode: 0
+
+#define GMSL_SPEED_1_5G     1500
+#define GMSL_SPEED_3G       3000
+#define GMSL_SPEED_6G       6000
+gmsl_speed: 3000
+
+#define FB_YUYV8_422        12
+#define FB_RAW12            20
+image_format: 12
 
 # canfd parameters
 is_canfd: 1

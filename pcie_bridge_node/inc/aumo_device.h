@@ -19,11 +19,12 @@ typedef struct
     int width = 640;
     int height = 360;
     int stride = 1280;
-    int h_total = 640;
-    int v_total = 360;
+    int h_total = 800;
+    int v_total = 375;
     int fps = 20;
     int video_type = FB_YUYV8_422;
     int gmsl_speed = GMSL_SPEED_3G;
+    int trigger_mode = PLAY_TIMESTAMP;
     const virtual_i2c_device_t *vI2cDev0 = nullptr;
     const virtual_i2c_device_t *vI2cDev1 = nullptr;
     const virtual_i2c_device_t *vI2cDev2 = nullptr;
@@ -162,14 +163,14 @@ public:
                                 info.h_total, 
                                 info.v_total,
                                 info.fps);
-                LOGPF("video ch[%d] set_channel_img: %d", info.ch, ret);
+                LOGPF("video ch[%d] channel_create image: %d*%d, signal: %d*%d, stride: %d, ret: %d", info.ch, info.width, info.height, info.h_total, info.v_total, info.stride, ret);
                 ret = set_channel_gmsl(pcie_card_addr_,
                                     info.ch,
                                     info.gmsl_speed);
                 LOGPF("video ch[%d] set_channel_gmsl: %d", info.ch, ret);
                 ret = set_channel_trigger(pcie_card_addr_,
                                     info.ch,
-                                    PLAY_TIMESTAMP,
+                                    info.trigger_mode,
                                     2);
                 LOGPF("video ch[%d] set_channel_trigger: %d", info.ch, ret);
                 ret = set_channel_I2cDev(pcie_card_addr_, info.ch,

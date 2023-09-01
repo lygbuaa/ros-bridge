@@ -35,12 +35,13 @@ public:
             info.ch = i;
             info.width = param_loader_->image_width_;
             info.height = param_loader_->image_height_;
-            info.h_total = info.width;
-            info.v_total = info.height;
+            info.h_total = param_loader_->signal_width_;
+            info.v_total = param_loader_->signal_height_;
             info.fps = param_loader_->image_fps_;
             info.frame_period_nsec = 1e9 / info.fps;
-            info.video_type = FB_YUYV8_422;
-            info.gmsl_speed = GMSL_SPEED_3G;
+            info.video_type = param_loader_->image_format_;     //FB_YUYV8_422
+            info.gmsl_speed = param_loader_->gmsl_speed_;       //GMSL_SPEED_3G
+            info.trigger_mode = param_loader_->trigger_mode_;   //PLAY_TIMESTAMP
 
             float stride = (info.video_type==FB_RAW12) ? 1.5f : 2.0f;
             info.stride = (int)round(info.width * stride);

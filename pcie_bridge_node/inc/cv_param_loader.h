@@ -31,6 +31,12 @@ public:
 
     int pcie_card_id_;
 
+    int image_format_;
+    int trigger_mode_;
+    int gmsl_speed_;
+    int signal_width_;
+    int signal_height_;
+
 private:
     std::string yaml_path_;
     cv::FileStorage fs_;
@@ -92,6 +98,13 @@ public:
         fs_["is_canfd"] >> is_canfd_;
         fs_["canfd_fps"] >> canfd_fps_;
         RLOGI("is_canfd_: %d, canfd_fps_: %d, canfd_arbi_baudrate_: %d, canfd_data_baudrate_: %d", is_canfd_, canfd_fps_, canfd_arbi_baudrate_, canfd_data_baudrate_);
+
+        fs_["image_format"] >> image_format_;
+        fs_["trigger_mode"] >> trigger_mode_;
+        fs_["gmsl_speed"] >> gmsl_speed_;
+        fs_["signal_width"] >> signal_width_;
+        fs_["signal_height"] >> signal_height_;
+        RLOGI("image_format: %d, trigger_mode: %d, gmsl_speed: %d, signal_width: %d, signal_height: %d", image_format_, trigger_mode_, gmsl_speed_, signal_width_, signal_height_);
     }
 
 };
