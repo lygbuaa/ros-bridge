@@ -53,10 +53,18 @@ ament_target_dependencies(test_canfd_bin
 )
 target_link_libraries(test_canfd_bin ${AUMO_S2_LIB})
 
+add_executable(test_raw12_bin  src/test_raw12.cc)
+target_link_libraries(test_raw12_bin
+    ${OpenCV_LIBS}
+    -ldl
+    -lrt
+    -lpthread
+)
 
 # install binary files
 install(TARGETS ${EXECUTABLE_NAME}   DESTINATION  lib/${PROJECT_NAME})
 install(TARGETS test_canfd_bin   DESTINATION  lib/${PROJECT_NAME})
+install(TARGETS test_raw12_bin   DESTINATION  lib/${PROJECT_NAME})
 
 # install library
 install(DIRECTORY  aumo_s2_sdk  DESTINATION lib/${PROJECT_NAME})
