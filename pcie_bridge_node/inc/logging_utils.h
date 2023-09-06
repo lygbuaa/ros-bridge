@@ -57,6 +57,13 @@
         RLOGE("this is error");
         RLOGF("this is fatal");
     }
+
+#else
+    #define RLOGD(...) LOGPF(__VA_ARGS__)
+    #define RLOGI(...) LOGPF(__VA_ARGS__)
+    #define RLOGW(...) LOGPF(__VA_ARGS__)
+    #define RLOGE(...) LOGPF(__VA_ARGS__)
+    #define RLOGF(...) LOGPF(__VA_ARGS__)
 #endif
 
 static inline void _print_ros_env_(){

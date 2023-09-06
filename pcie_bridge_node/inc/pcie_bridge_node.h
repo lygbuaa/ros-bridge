@@ -2,7 +2,6 @@
 #define __CAN_BRIDGE_NODE_H__
 
 #include <cv_bridge/cv_bridge.h>
-#include "aumo_s2_sdk/controlplay.h"
 #include "logging_utils.h"
 #include "cv_param_loader.h"
 #include "aumo_device.h"
@@ -42,9 +41,12 @@ public:
             info.video_type = param_loader_->image_format_;     //FB_YUYV8_422
             info.gmsl_speed = param_loader_->gmsl_speed_;       //GMSL_SPEED_3G
             info.trigger_mode = param_loader_->trigger_mode_;   //PLAY_TIMESTAMP
+            info.gpio_trigger_id = param_loader_->gpio_trigger_id_;
 
             float stride = (info.video_type==FB_RAW12) ? 1.5f : 2.0f;
             info.stride = (int)round(info.width * stride);
+            info.img_len = info.stride * info.height;
+            info.pdata = (char*)malloc(info.img_len);
 
             aumo_video_infos_.emplace_back(info);
         }
@@ -137,10 +139,16 @@ public:
                 uint8_t v = yuvPixel2[2];
 
                 // 将Y、U、Y、V交错排列成YUYV形式
-                yuyv[yuyvIndex++] = y1;
+                // yuyv[yuyvIndex++] = y1;
+                // yuyv[yuyvIndex++] = u;
+                // yuyv[yuyvIndex++] = y2;
+                // yuyv[yuyvIndex++] = v;
+
+                // 将Y、U、Y、V交错排列成UYVY形式
                 yuyv[yuyvIndex++] = u;
-                yuyv[yuyvIndex++] = y2;
+                yuyv[yuyvIndex++] = y1;
                 yuyv[yuyvIndex++] = v;
+                yuyv[yuyvIndex++] = y2;
             }
         }
     }
@@ -161,8 +169,8 @@ public:
 
         cv::Size newSize(rgbImage.cols, rgbImage.rows);
         cv::Mat tmp_img(yuvImage.rows, yuvImage.cols, CV_8UC2, info.yuyvImage.data());
-        cv::resize(tmp_img, info.yuyvImageMat, newSize);
-        char* imageData = reinterpret_cast<char *>(info.yuyvImageMat.data);
+        cv::resize(tmp_img, tmp_img, newSize);
+        char* imageData = reinterpret_cast<char *>(tmp_img.data);
 
         int64_t timestampNs = timestamp.nanoseconds();
         
@@ -173,8 +181,9 @@ public:
             RLOGD("chn[%d] attach timestampNs: %ld", chn, timestampNs);
         }
 
-        
-        info.pdata = imageData;
+        std::memcpy(info.pdata, imageData, info.img_len);
+        // info.pdata = imageData;
+
         return aumo_device_ -> inject_image(info);
     }
 
@@ -209,6 +218,27 @@ public:
             }
             // usleep(100*1000);
         }
+    }
+
+    void test_video_inject()
+    {
+        size_t img_len = aumo_video_infos_[0].img_len;
+        char* buffer = (char*)malloc(img_len);
+        memset(buffer, 0x0, img_len);
+        RLOGI("test_video_inject malloc: %ld", img_len);
+
+        while(true)
+        {
+            for(int i=0; i<AUMO_VIDEO_CH_NUM_; i++)
+            {
+                aumo_video_channel_info_t& info = aumo_video_infos_[i];
+                info.pdata = buffer;
+                aumo_device_ -> inject_image(info);
+            }
+            usleep(30*1000);
+        }
+
+        delete buffer;
     }
 
 

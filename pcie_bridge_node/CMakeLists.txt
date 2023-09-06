@@ -61,10 +61,19 @@ target_link_libraries(test_raw12_bin
     -lpthread
 )
 
+add_executable(test_video_inject  src/test_video_inject.cc)
+target_link_libraries(test_video_inject
+    ${AUMO_S2_LIB}
+    -ldl
+    -lrt
+    -lpthread
+)
+
 # install binary files
 install(TARGETS ${EXECUTABLE_NAME}   DESTINATION  lib/${PROJECT_NAME})
 install(TARGETS test_canfd_bin   DESTINATION  lib/${PROJECT_NAME})
 install(TARGETS test_raw12_bin   DESTINATION  lib/${PROJECT_NAME})
+install(TARGETS test_video_inject   DESTINATION  lib/${PROJECT_NAME})
 
 # install library
 install(DIRECTORY  aumo_s2_sdk  DESTINATION lib/${PROJECT_NAME})

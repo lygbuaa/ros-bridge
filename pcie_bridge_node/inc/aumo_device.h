@@ -11,7 +11,16 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <queue>
-#include "logging_utils.h"
+#include <cmath>
+#include <memory>
+// #include <opencv2/opencv.hpp>
+#include "aumo_s2_sdk/controlplay.h"
+// #include "logging_utils.h"
+
+//* log with fprintf *//
+#ifndef LOGPF
+#define LOGPF(format, ...) fprintf(stderr ,"[%s:%d] " format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#endif
 
 typedef struct
 {
@@ -25,12 +34,14 @@ typedef struct
     int video_type = FB_YUYV8_422;
     int gmsl_speed = GMSL_SPEED_3G;
     int trigger_mode = PLAY_TIMESTAMP;
+    int gpio_trigger_id = 8;
     const virtual_i2c_device_t *vI2cDev0 = nullptr;
     const virtual_i2c_device_t *vI2cDev1 = nullptr;
     const virtual_i2c_device_t *vI2cDev2 = nullptr;
     char* pdata = nullptr;
+    size_t img_len = 0;
     std::vector<uint8_t> yuyvImage;
-    cv::Mat yuyvImageMat;
+    // cv::Mat yuyvImageMat;
     unsigned long long time_sec = 0;
     unsigned int time_nsec = 0;
     unsigned int frame_period_nsec = 0;
@@ -147,7 +158,7 @@ public:
             LOGPF("aumo get_ptp_time: %s", tmp_str);
 
             /** init video channels */
-            for (int i = 0; i < AUMO_VIDEO_CH_NUM_; i++)
+            for (int i = 0; i < video_ch_infos.size(); i++)
             {
                 aumo_video_channel_info_t& info = video_ch_infos[i];
                 LOGPF("aumo create video ch: %d", info.ch);
@@ -171,7 +182,7 @@ public:
                 ret = set_channel_trigger(pcie_card_addr_,
                                     info.ch,
                                     info.trigger_mode,
-                                    2);
+                                    info.gpio_trigger_id);
                 LOGPF("video ch[%d] set_channel_trigger: %d", info.ch, ret);
                 ret = set_channel_I2cDev(pcie_card_addr_, info.ch,
                                       info.vI2cDev0,
@@ -185,7 +196,7 @@ public:
             gmsl_reset_manage(pcie_card_addr_);
 
             /** init canfd channels */
-            for (int i = 0; i < AUMO_CANFD_CH_NUM_; i++)
+            for (int i = 0; i < canfd_ch_infos.size(); i++)
             {
                 aumo_canfd_channel_info_t& info = canfd_ch_infos[i];
                 get_ptp_time(pcie_card_addr_, &time_sec, &time_nsec, i);
@@ -211,7 +222,7 @@ public:
                 info.time_sec += 1;
             }
             info.img_count++;
-            info.pdata = nullptr;
+            // info.pdata = nullptr;
             LOGPF("video ch[%d] inject image count: %d, ret: %d", info.ch, info.img_count, ret);
             return (ret == 0); 
         }

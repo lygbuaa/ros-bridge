@@ -9,10 +9,11 @@ image_left_topic: "/carla/ego_vehicle/camera_svc_left_pcie/image"
 image_rear_topic: "/carla/ego_vehicle/camera_svc_rear_pcie/image"
 image_right_topic: "/carla/ego_vehicle/camera_svc_right_pcie/image"
 
-image_front_chn: 7
-image_left_chn:  5
-image_rear_chn:  6
-image_right_chn: 4
+# 7564 or 1023
+image_front_chn: 1
+image_left_chn:  0
+image_rear_chn:  2
+image_right_chn: 3
 
 image_width: 640
 image_height: 360
@@ -24,7 +25,9 @@ signal_height: 375
 #define PLAY_TIMESTAMP      0
 #define PLAY_TRIGGER_GPIO   1
 #define PLAY_NODELAY        2
-trigger_mode: 0
+trigger_mode: 2
+
+gpio_trigger_id: 8
 
 #define GMSL_SPEED_1_5G     1500
 #define GMSL_SPEED_3G       3000

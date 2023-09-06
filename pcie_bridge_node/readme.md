@@ -1,6 +1,6 @@
 ## prepare env
 1. run docker: 
-` docker run --gpus all -it -v `pwd`:`pwd` -w `pwd` --ipc=host \
+` docker run --privileged --gpus all -it -v `pwd`:`pwd` -w `pwd` --ipc=host \
 --device  /dev/dri	\
 --device  /dev/xdma0_bypass	\
 --device  /dev/xdma0_bypass_c2h_0 \

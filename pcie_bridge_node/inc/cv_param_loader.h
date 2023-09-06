@@ -33,6 +33,7 @@ public:
 
     int image_format_;
     int trigger_mode_;
+    int gpio_trigger_id_;
     int gmsl_speed_;
     int signal_width_;
     int signal_height_;
@@ -101,6 +102,7 @@ public:
 
         fs_["image_format"] >> image_format_;
         fs_["trigger_mode"] >> trigger_mode_;
+        fs_["gpio_trigger_id"] >> gpio_trigger_id_;
         fs_["gmsl_speed"] >> gmsl_speed_;
         fs_["signal_width"] >> signal_width_;
         fs_["signal_height"] >> signal_height_;

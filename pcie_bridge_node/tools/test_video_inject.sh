@@ -23,4 +23,4 @@ export ROS_LOG_DIR=${PRJ_PATH}/log
 BIN_PATH=${PRJ_PATH}/install/pcie_bridge_node/lib/pcie_bridge_node
 IMG_PATH=${PRJ_PATH}/ros-bridge/pcie_bridge_node/assets
 
-${BIN_PATH}/test_raw12_bin ${IMG_PATH}/1920_1599.raw12 1920 1559 rggb
+${BIN_PATH}/test_video_inject 0 ${IMG_PATH}/1920_1080.uyvy uyvy 1920 1080 2200 1125 
