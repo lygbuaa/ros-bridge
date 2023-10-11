@@ -94,28 +94,34 @@ public:
         iTek_CANFD_CHANNEL_INIT_CONFIG chn_config;
         memset(&chn_config, 0, sizeof(iTek_CANFD_CHANNEL_INIT_CONFIG));
 
+        /** 0:can classic, 1:canfd */
+        chn_config.can_type = can_type;
+        chn_config.workMode = 0;
+
         if(can_type == 0)
         {
             LOGPF("*** channel[%d] using CAN Classic mode! ***", chn);
+            /** set baudrate 500K*/
+            chn_config.abit_timing = Arbitrat_Rate500K;
+            chn_config.dbit_timing = Arbitrat_Rate500K;
         }
         else if(can_type == 1)
         {
             LOGPF("*** channel[%d] using CAN FD mode! ***", chn);
+            /** set baudrate 500K + 2M*/
+            chn_config.abit_timing = Arbitrat_Rate500K;
+            chn_config.dbit_timing = Data_Rate2M;
+
+            chn_config.CANFDStandard = 0;
+            /** 1:enable speed up */
+            chn_config.CANFDSpeedup = 1;
         }
         else
         {
             LOGPF("*** channel[%d] invalid can type! ***", chn);
+            return false;
         }
 
-        /** 0:can classic, 1:canfd */
-        chn_config.can_type = can_type;
-        chn_config.CANFDStandard = 0;
-        /** 1:enable speed up */
-        chn_config.CANFDSpeedup = 1;
-        chn_config.workMode = 0;
-        /** set baudrate */
-        chn_config.abit_timing = Arbitrat_Rate500K;
-        chn_config.dbit_timing = Data_Rate2M;
         /** set filter to recv ids between 0x0~0xfff */
         chn_config.Standard.num = 1;
         chn_config.Standard.filterDataStandard->ID1 = 0x0;
