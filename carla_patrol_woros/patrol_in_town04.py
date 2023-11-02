@@ -404,7 +404,8 @@ def game_loop(args):
         if args.sync:
             if not settings.synchronous_mode:
                 settings.synchronous_mode = True
-                settings.fixed_delta_seconds = 0.1
+                settings.fixed_delta_seconds = 1.0 / args.fps
+                g_logger.warn("[sync mode] fixed_delta_seconds = %f", settings.fixed_delta_seconds)
             traffic_manager = client.get_trafficmanager()
             traffic_manager.set_synchronous_mode(True)
         settings.no_rendering_mode = not args.rendering
@@ -419,12 +420,14 @@ def game_loop(args):
         grid_size = [1, 1] # rows, cols, the lower-mid grid is always the god-view camera
         if args.visualization == "patrol6":
             grid_size = [2, 3]
-        elif args.visualization == "radar" or args.visualization == "svc":
+        elif args.visualization == "radar":
             grid_size = [3, 3]
         elif args.visualization == "lidar":
             grid_size = [2, 3]
         elif args.visualization == "camera":
             grid_size = [4, 3]
+        elif args.visualization == "svc":
+            grid_size = [2, 2]
         else: # say it is god_view
             grid_size = [1, 1]
 
@@ -445,8 +448,8 @@ def game_loop(args):
             try:
                 if args.sync:
                     sim_world.tick()
-                # limit client loop fps <= 20
-                clock.tick_busy_loop(10)
+                # limit client loop fps
+                clock.tick_busy_loop(args.fps)
                 # clock.tick(10)
                 if controller.parse_events(client, scene_wrapper, clock, args):
                     return
@@ -524,6 +527,11 @@ def main():
         action='store_true',
         help='Activate synchronous mode execution')
     argparser.add_argument(
+        '--fps',
+        default=20,
+        type=int,
+        help='client frame rate (default: 20)')
+    argparser.add_argument(
         '--rendering',
         action='store_true',
         help='enable rendering')
@@ -547,7 +555,7 @@ def main():
     # log_level = logging.DEBUG if args.debug else logging.INFO
     # logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
     g_logger.info('listening to server %s:%s', args.host, args.port)
-    g_logger.info("arg.sync: %d", args.sync)
+    g_logger.info("args.sync: %d, args.fps: %d", args.sync, args.fps)
 
     try:
         game_loop(args)

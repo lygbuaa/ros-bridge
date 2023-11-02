@@ -77,6 +77,7 @@ class CarlaRosBridge(CompatibleNode):
         self.shutdown = Event()
 
         self.carla_settings = carla_world.get_settings()
+        self.carla_settings.no_rendering_mode = self.parameters["no_rendering_mode"]
         if not self.parameters["passive"]:
             # workaround: settings can only applied within non-sync mode
             if self.carla_settings.synchronous_mode:
@@ -392,6 +393,7 @@ def main(args=None):
     parameters['timeout'] = carla_bridge.get_param('timeout', 2)
     parameters['passive'] = carla_bridge.get_param('passive', False)
     parameters['synchronous_mode'] = carla_bridge.get_param('synchronous_mode', True)
+    parameters['no_rendering_mode'] = carla_bridge.get_param('no_rendering_mode', True)
     parameters['synchronous_mode_wait_for_vehicle_control_command'] = carla_bridge.get_param(
         'synchronous_mode_wait_for_vehicle_control_command', False)
     parameters['fixed_delta_seconds'] = carla_bridge.get_param('fixed_delta_seconds',

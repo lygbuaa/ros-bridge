@@ -26,8 +26,13 @@ def generate_launch_description():
         ),
         launch.actions.DeclareLaunchArgument(
             name='synchronous_mode',
-            default_value='True',
+            default_value='False',
             description='Enable/disable synchronous mode. If enabled, the ROS bridge waits until the expected data is received for all sensors'
+        ),
+        launch.actions.DeclareLaunchArgument(
+            name='no_rendering_mode',
+            default_value='True',
+            description='Enable/disable rendring.'
         ),
         launch.actions.DeclareLaunchArgument(
             name='synchronous_mode_wait_for_vehicle_control_command',
@@ -36,7 +41,7 @@ def generate_launch_description():
         ),
         launch.actions.DeclareLaunchArgument(
             name='fixed_delta_seconds',
-            default_value='0.05',
+            default_value='0.02',
             description='Simulation time (delta seconds) between simulation steps'
         ),
         launch.actions.DeclareLaunchArgument(
@@ -79,6 +84,9 @@ def generate_launch_description():
                 },
                 {
                     'synchronous_mode': launch.substitutions.LaunchConfiguration('synchronous_mode')
+                },
+                {
+                    'no_rendering_mode': launch.substitutions.LaunchConfiguration('no_rendering_mode')
                 },
                 {
                     'synchronous_mode_wait_for_vehicle_control_command': launch.substitutions.LaunchConfiguration('synchronous_mode_wait_for_vehicle_control_command')

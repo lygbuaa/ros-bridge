@@ -57,6 +57,7 @@ class SensorWrapperBase(object):
         self.sensor = None
         self.t_start = self.timer.time()
         self.sensor_type = sensor_type
+        self.last_frame_time = time.time()
 
     def render(self):
         if self.surface is not None:
@@ -68,7 +69,7 @@ class SensorWrapperBase(object):
             self.sensor.destroy()
             self.sensor = None
         dt = self.timer.time() - self.t_start
-        g_logger.info("[%s] tics: %d, dt: %f, fps: %f", self.sensor_type, self.tics_processing, dt, self.tics_processing/dt)
+        g_logger.info("[%s] tics: %d, dt: %f, fps: %.2f", self.sensor_type, self.tics_processing, dt, self.tics_processing/dt)
 
     def __del__(self):
         if self.sensor:
@@ -127,11 +128,18 @@ class RadarWrapper(SensorWrapperBase):
         radar_img_size = (disp_size[0], disp_size[1], 3)
         radar_img = np.zeros((radar_img_size), dtype=np.uint8)
 
-        radar_img[tuple(radar_data.T)] = (255, 255, 255)
+        try:
+            radar_img[tuple(radar_data.T)] = (255, 255, 255)
+        except IndexError:
+            pass
 
         if self.display_man.render_enabled():
             self.surface = pygame.surfarray.make_surface(radar_img)
         self.tics_processing += 1
+        if self.tics_processing % 100 == 0:
+            fps = 100 / (time.time() - self.last_frame_time)
+            self.last_frame_time = time.time()
+            g_logger.info("[%s] frame: %d, fps: %.2f", self.sensor_type, self.tics_processing, fps)
 
 
 class LidarWrapper(SensorWrapperBase):
@@ -194,6 +202,10 @@ class LidarWrapper(SensorWrapperBase):
         t_end = self.timer.time()
         self.time_processing += (t_end-t_start)
         self.tics_processing += 1
+        if self.tics_processing % 100 == 0:
+            fps = 100 / (time.time() - self.last_frame_time)
+            self.last_frame_time = time.time()
+            g_logger.info("[%s] frame: %d, fps: %.2f", self.sensor_type, self.tics_processing, fps)
 
 
 class CameraWrapper(SensorWrapperBase):
@@ -242,6 +254,11 @@ class CameraWrapper(SensorWrapperBase):
         t_end = self.timer.time()
         self.time_processing += (t_end-t_start)
         self.tics_processing += 1
+        if self.tics_processing % 100 == 0:
+            fps = 100 / (time.time() - self.last_frame_time)
+            self.last_frame_time = time.time()
+            g_logger.info("[%s] frame: %d, fps: %.2f", self.sensor_type, self.tics_processing, fps)
+
 
     def save_semantic_image(self, image):
         t_start = self.timer.time()

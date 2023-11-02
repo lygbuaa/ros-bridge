@@ -164,7 +164,7 @@ class SceneWrapper(object):
             self.create_camera_set()
 
         elif self.visualization == "svc":
-            self.create_godview_camera(disp_pos=[1, 1])
+            # self.create_godview_camera(disp_pos=[1, 1])
             self.create_svc_set()
 
         else: #grid_size = [1, 1]
@@ -461,8 +461,8 @@ class SceneWrapper(object):
             sensor_type='RGBCamera',
             transform=carla.Transform(carla.Location(x=2.58, y=0.0, z=0.73), carla.Rotation(pitch=-20.0, yaw=0.0)),
             attached=self.player,
-            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
-            display_pos=[0, 1]
+            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.05'},
+            display_pos=[0, 0]
         )
         self.camera_svc_rear = CameraWrapper(
             world=self.world,
@@ -470,8 +470,8 @@ class SceneWrapper(object):
             sensor_type='RGBCamera',
             transform=carla.Transform(carla.Location(x=-2.62, y=0.0, z=0.73), carla.Rotation(pitch=-20.0, yaw=180.0)),
             attached=self.player,
-            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
-            display_pos=[2, 1]
+            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.05'},
+            display_pos=[1, 1]
         )
         self.camera_svc_left = CameraWrapper(
             world=self.world,
@@ -479,7 +479,7 @@ class SceneWrapper(object):
             sensor_type='RGBCamera',
             transform=carla.Transform(carla.Location(x=0.08, y=-1.1, z=0.73), carla.Rotation(pitch=-20.0, yaw=-90.0)),
             attached=self.player,
-            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
+            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.05'},
             display_pos=[1, 0]
         )
         self.camera_svc_right = CameraWrapper(
@@ -488,46 +488,45 @@ class SceneWrapper(object):
             sensor_type='RGBCamera',
             transform=carla.Transform(carla.Location(x=0.08, y=1.1, z=0.73), carla.Rotation(pitch=-20.0, yaw=90.0)),
             attached=self.player,
-            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
-            display_pos=[1, 2]
+            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.05'},
+            display_pos=[0, 1]
         )
-
-        self.semantic_svc_front = CameraWrapper(
-            world=self.world,
-            display_man=self.display_manager, 
-            sensor_type='SemanticCamera',
-            transform=carla.Transform(carla.Location(x=2.58, y=0.0, z=0.73), carla.Rotation(pitch=-20.0, yaw=0.0)),
-            attached=self.player,
-            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
-            display_pos=[0, 0]
-        )
-        self.semantic_svc_rear = CameraWrapper(
-            world=self.world,
-            display_man=self.display_manager, 
-            sensor_type='SemanticCamera',
-            transform=carla.Transform(carla.Location(x=-2.62, y=0.0, z=0.73), carla.Rotation(pitch=-20.0, yaw=180.0)),
-            attached=self.player,
-            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
-            display_pos=[2, 2]
-        )
-        self.semantic_svc_left = CameraWrapper(
-            world=self.world,
-            display_man=self.display_manager, 
-            sensor_type='SemanticCamera',
-            transform=carla.Transform(carla.Location(x=0.08, y=-1.1, z=0.73), carla.Rotation(pitch=-20.0, yaw=-90.0)),
-            attached=self.player,
-            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
-            display_pos=[2, 0]
-        )
-        self.semantic_svc_right = CameraWrapper(
-            world=self.world,
-            display_man=self.display_manager, 
-            sensor_type='SemanticCamera',
-            transform=carla.Transform(carla.Location(x=0.08, y=1.1, z=0.73), carla.Rotation(pitch=-20.0, yaw=90.0)),
-            attached=self.player,
-            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
-            display_pos=[0, 2]
-        )
+        # self.semantic_svc_front = CameraWrapper(
+        #     world=self.world,
+        #     display_man=self.display_manager, 
+        #     sensor_type='SemanticCamera',
+        #     transform=carla.Transform(carla.Location(x=2.58, y=0.0, z=0.73), carla.Rotation(pitch=-20.0, yaw=0.0)),
+        #     attached=self.player,
+        #     sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
+        #     display_pos=[0, 0]
+        # )
+        # self.semantic_svc_rear = CameraWrapper(
+        #     world=self.world,
+        #     display_man=self.display_manager, 
+        #     sensor_type='SemanticCamera',
+        #     transform=carla.Transform(carla.Location(x=-2.62, y=0.0, z=0.73), carla.Rotation(pitch=-20.0, yaw=180.0)),
+        #     attached=self.player,
+        #     sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
+        #     display_pos=[2, 2]
+        # )
+        # self.semantic_svc_left = CameraWrapper(
+        #     world=self.world,
+        #     display_man=self.display_manager, 
+        #     sensor_type='SemanticCamera',
+        #     transform=carla.Transform(carla.Location(x=0.08, y=-1.1, z=0.73), carla.Rotation(pitch=-20.0, yaw=-90.0)),
+        #     attached=self.player,
+        #     sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
+        #     display_pos=[2, 0]
+        # )
+        # self.semantic_svc_right = CameraWrapper(
+        #     world=self.world,
+        #     display_man=self.display_manager, 
+        #     sensor_type='SemanticCamera',
+        #     transform=carla.Transform(carla.Location(x=0.08, y=1.1, z=0.73), carla.Rotation(pitch=-20.0, yaw=90.0)),
+        #     attached=self.player,
+        #     sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
+        #     display_pos=[0, 2]
+        # )
 
     def create_patrol6_set(self):
         self.camera_flwc = CameraWrapper(
@@ -586,3 +585,21 @@ class SceneWrapper(object):
             sensor_options={'horizontal_fov':'30.0', 'points_per_second':'1500', 'range':'150.0', 'vertical_fov':'15.0'},
             display_pos=[1, 2]
         )
+        # self.camera_flwc = CameraWrapper(
+        #     world=self.world, 
+        #     display_man=self.display_manager, 
+        #     sensor_type='RGBCamera',
+        #     transform=carla.Transform(carla.Location(x=1.5, y=0.0, z=1.5), carla.Rotation(yaw=0.0)),
+        #     attached=self.player,
+        #     sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
+        #     display_pos=[0, 3]
+        # )
+        # self.camera_rlc = CameraWrapper(
+        #     world=self.world,
+        #     display_man=self.display_manager, 
+        #     sensor_type='RGBCamera',
+        #     transform=carla.Transform(carla.Location(x=-1.5, y=0.0, z=1.5), carla.Rotation(yaw=180.0)),
+        #     attached=self.player,
+        #     sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
+        #     display_pos=[1, 3]
+        # )

@@ -165,7 +165,7 @@ class ManualControl(CompatibleNode):
 
         if self._surface is not None:
             display.blit(self._surface, (0, 0))
-        # self.hud.render(display)
+        self.hud.render(display)
 
     def save_vehicle_trajectory(self, filepath="./carla_parking_traj.json"):
         N = len(self.vehicle_status_list)
