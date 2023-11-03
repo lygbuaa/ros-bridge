@@ -410,9 +410,9 @@ def game_loop(args):
             traffic_manager.set_synchronous_mode(True)
         settings.no_rendering_mode = not args.rendering
         sim_world.apply_settings(settings)
-
-        vehicles_list, walkers_list, all_id, all_actors = enable_random_traffic(client, sync=args.sync)
         
+        vehicles_list, walkers_list, all_id, all_actors = enable_random_traffic(client, sync=args.sync)
+
         if args.autopilot and not sim_world.get_settings().synchronous_mode:
             g_logger.warn("WARNING: You are currently in asynchronous mode and could "
                   "experience some issues with the traffic simulation")
@@ -443,6 +443,9 @@ def game_loop(args):
         else:
             sim_world.wait_for_tick()
         clock = pygame.time.Clock()
+        pygame.display.set_caption("carla autopilot")
+
+        # vehicles_list, walkers_list, all_id, all_actors = enable_random_traffic(client, sync=args.sync)
 
         while True:
             try:
@@ -500,7 +503,7 @@ def main():
     argparser.add_argument(
         '--res',
         metavar='WIDTHxHEIGHT',
-        default='1280x720',
+        default='1800x800',
         help='window resolution (default: 1280x720)')
     argparser.add_argument(
         '--filter',

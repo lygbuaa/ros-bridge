@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # use logger
     logger.debug("plogging debug")
     logger.info("plogging info")
-    logger.warn("plogging warn")
+    logger.warning("plogging warning")
     logger.error("plogging error")
     logger.critical("plogging critical")
 

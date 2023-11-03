@@ -43,7 +43,7 @@ class SceneWrapper(object):
     def __init__(self, carla_world, hud, args, display_manager):
         self.world = carla_world
         self.display_manager = display_manager
-        self.parking_lot_location = carla.Location(x=290.0, y=-180.0, z=0.0) # parking lot in Town04
+        self.parking_lot_location = carla.Location(x=284.5, y=-172.5, z=0.5) # parking lot in Town04
         self.rear_axle_midpoint = carla.Location(x=-1.42, y=0.0, z=0.33)
         self.sync = args.sync
         self.visualization = args.visualization
@@ -274,7 +274,8 @@ class SceneWrapper(object):
             transform=carla.Transform(carla.Location(x=0.0, y=0.0, z=20.0), carla.Rotation(pitch=-90.0)),
             attached=self.player,
             sensor_options={'fov':'120.0'},
-            display_pos=disp_pos
+            display_pos=disp_pos,
+            idx=0
         )
 
     def create_radar_set(self):
@@ -535,8 +536,9 @@ class SceneWrapper(object):
             sensor_type='RGBCamera',
             transform=carla.Transform(carla.Location(x=1.5, y=0.0, z=1.5), carla.Rotation(yaw=0.0)),
             attached=self.player,
-            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.05'},
-            display_pos=[0, 1]
+            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080'},
+            display_pos=[0, 1],
+            idx=1
         )
         self.camera_rlc = CameraWrapper(
             world=self.world,
@@ -544,8 +546,9 @@ class SceneWrapper(object):
             sensor_type='RGBCamera',
             transform=carla.Transform(carla.Location(x=-1.5, y=0.0, z=1.5), carla.Rotation(yaw=180.0)),
             attached=self.player,
-            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.05'},
-            display_pos=[1, 1]
+            sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080'},
+            display_pos=[1, 1],
+            idx=2
         )
 
         self.lidar_front = LidarWrapper(
@@ -554,8 +557,9 @@ class SceneWrapper(object):
             sensor_type='LiDAR',
             transform=carla.Transform(carla.Location(x=2.0, y=0.0, z=1.5), carla.Rotation(yaw=0.0)),
             attached=self.player,
-            sensor_options={'channels':'128', 'range':'100.0', 'points_per_second':'1536000', 'rotation_frequency':'10', 'horizontal_fov':'120.0', 'upper_fov':'15.0', 'lower_fov':'-25.0', 'sensor_tick':'0.1'},
-            display_pos=[0, 0]
+            sensor_options={'channels':'128', 'range':'200.0', 'points_per_second':'1536000', 'rotation_frequency':'10', 'horizontal_fov':'120.0', 'upper_fov':'7.0', 'lower_fov':'-18.0', 'sensor_tick':'0.1'},
+            display_pos=[0, 0],
+            idx=3
         )
         self.lidar_rear = LidarWrapper(
             world=self.world, 
@@ -563,8 +567,9 @@ class SceneWrapper(object):
             sensor_type='LiDAR',
             transform=carla.Transform(carla.Location(x=-2.0, y=0.0, z=1.5), carla.Rotation(yaw=180.0)),
             attached=self.player,
-            sensor_options={'channels':'128', 'range':'100.0', 'points_per_second':'1536000', 'rotation_frequency':'10', 'horizontal_fov':'120.0', 'upper_fov':'15.0', 'lower_fov':'-25.0', 'sensor_tick':'0.1'},
-            display_pos=[1, 0]
+            sensor_options={'channels':'128', 'range':'200.0', 'points_per_second':'1536000', 'rotation_frequency':'10', 'horizontal_fov':'120.0', 'upper_fov':'7.0', 'lower_fov':'-18.0', 'sensor_tick':'0.1'},
+            display_pos=[1, 0],
+            idx=4
         )
 
         self.radar_front = RadarWrapper(
@@ -574,7 +579,8 @@ class SceneWrapper(object):
             transform=carla.Transform(carla.Location(x=2.0, y=0.0, z=1.5), carla.Rotation(yaw=0.0)),
             attached=self.player,
             sensor_options={'horizontal_fov':'30.0', 'points_per_second':'1500', 'range':'150.0', 'vertical_fov':'15.0'},
-            display_pos=[0, 2]
+            display_pos=[0, 2],
+            idx=5
         )
         self.radar_rear = RadarWrapper(
             world=self.world, 
@@ -583,7 +589,8 @@ class SceneWrapper(object):
             transform=carla.Transform(carla.Location(x=-2.0, y=0.0, z=1.5), carla.Rotation(yaw=180.0)),
             attached=self.player,
             sensor_options={'horizontal_fov':'30.0', 'points_per_second':'1500', 'range':'150.0', 'vertical_fov':'15.0'},
-            display_pos=[1, 2]
+            display_pos=[1, 2],
+            idx=6
         )
         # self.camera_flwc = CameraWrapper(
         #     world=self.world, 
@@ -591,8 +598,9 @@ class SceneWrapper(object):
         #     sensor_type='RGBCamera',
         #     transform=carla.Transform(carla.Location(x=1.5, y=0.0, z=1.5), carla.Rotation(yaw=0.0)),
         #     attached=self.player,
-        #     sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
-        #     display_pos=[0, 3]
+        #     sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.02'},
+        #     display_pos=[0, 3],
+        #     idx=7
         # )
         # self.camera_rlc = CameraWrapper(
         #     world=self.world,
@@ -600,6 +608,7 @@ class SceneWrapper(object):
         #     sensor_type='RGBCamera',
         #     transform=carla.Transform(carla.Location(x=-1.5, y=0.0, z=1.5), carla.Rotation(yaw=180.0)),
         #     attached=self.player,
-        #     sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.033'},
-        #     display_pos=[1, 3]
+        #     sensor_options={'fov':'120.0', 'image_size_x':'1920', 'image_size_y':'1080', 'sensor_tick':'0.02'},
+        #     display_pos=[1, 3],
+        #     idx=8
         # )
