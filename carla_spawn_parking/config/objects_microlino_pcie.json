@@ -48,8 +48,8 @@
                     "type": "sensor.camera.rgb",
                     "id": "camera_svc_front_pcie",
                     "spawn_point": {"x": 1.10, "y": 0.0, "z": 1.00, "roll": 0.0, "pitch": 20.0, "yaw": 0.0},
-                    "image_size_x": 1920,
-                    "image_size_y": 1080,
+                    "image_size_x": 1280,
+                    "image_size_y": 720,
                     "sensor_tick": 0.05,
                     "fov": 120.0
                 },
@@ -58,8 +58,8 @@
                     "type": "sensor.camera.rgb",
                     "id": "camera_svc_rear_pcie",
                     "spawn_point": {"x": -1.10, "y": 0.0, "z": 1.00, "roll": 0.0, "pitch": 20.0, "yaw": 180.0},
-                    "image_size_x": 1920,
-                    "image_size_y": 1080,
+                    "image_size_x": 1280,
+                    "image_size_y": 720,
                     "sensor_tick": 0.05,
                     "fov": 120.0
                 },
@@ -68,8 +68,8 @@
                     "type": "sensor.camera.rgb",
                     "id": "camera_svc_left_pcie",
                     "spawn_point": {"x": 0.0, "y": 0.74, "z": 1.00, "roll": 0.0, "pitch": 20.0, "yaw": 90.0},
-                    "image_size_x": 1920,
-                    "image_size_y": 1080,
+                    "image_size_x": 1280,
+                    "image_size_y": 720,
                     "sensor_tick": 0.05,
                     "fov": 120.0
                 },
@@ -78,8 +78,8 @@
                     "type": "sensor.camera.rgb",
                     "id": "camera_svc_right_pcie",
                     "spawn_point": {"x": 0.0, "y": -0.74, "z": 1.00, "roll": 0.0, "pitch": 20.0, "yaw": -90.0},
-                    "image_size_x": 1920,
-                    "image_size_y": 1080,
+                    "image_size_x": 1280,
+                    "image_size_y": 720,
                     "sensor_tick": 0.05,
                     "fov": 120.0
                 },

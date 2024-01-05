@@ -15,6 +15,7 @@ import plogging
 
 global g_logger
 global g_date # lidar timestamp
+global g_motor_speed # motor speed, 0x04B0=1200rpm, 0x0258=600rpm, 0x012C=300rpm
 
 class Ros2BridgeNode(Node):
     def __init__(self):
@@ -62,7 +63,8 @@ class Ros2BridgeNode(Node):
         else:
             vert_angle = (raw_sub_frame[0]*self.vertical_resolution + self.lower_fov)/57.3
             # g_logger.info("line_num: %d, vert_angle: %.2f", raw_sub_frame[0], vert_angle*57.3)
-            hori_angle = (raw_sub_frame[1] + raw_sub_frame[2]*0.01)/57.3
+            # hori_angle = (raw_sub_frame[1] + raw_sub_frame[2]*0.01)/57.3
+            hori_angle = 0.01*(struct.unpack(">H", raw_sub_frame[1:3])[0])/57.3
             dist = 0.01*(struct.unpack(">H", raw_sub_frame[3:5])[0]) + 0.01*raw_sub_frame[5]/256
             # append new point to cloud
             fx = dist * math.sin(hori_angle)
@@ -157,6 +159,10 @@ class SocketServerDifop(udpwrapper.SocketServer):
             # g_logger.info("difop frame ready, start decoding")
             self.difop_counter += 1
             self.frame_ready = True
+            g_motor_speed = difop_frame[8] << 8
+            g_motor_speed = g_motor_speed + difop_frame[9]
+            g_logger.info("difop counter: %d, g_motor_speed: %d rpm", self.difop_counter, g_motor_speed)
+
             g_date[0] = difop_frame[52] + 2000 # (int(ts[0]) - 2000) % 255 # year 0~255
             g_date[1] = difop_frame[53] # int(ts[1]) # month 1~12
             g_date[2] = difop_frame[54] # int(ts[2]) # day 1~31
@@ -170,6 +176,7 @@ if __name__ == "__main__":
     plogging.init_logger(log_dir="./", file_name="lidar_ch128x1_decoder")
     g_logger = plogging.get_logger()
     g_date = [2023, 12, 31, 23, 59, 59, 1001] #[year, mon, day, hr, min, sec, microsec]
+    g_motor_speed = 0x0
     rclpy.init(args=None)
 
     lidar1_msop_receiver = SocketServerMsop(host="127.0.0.1", port=12371, len=1206)

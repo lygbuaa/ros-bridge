@@ -61,23 +61,31 @@ class LidarCH128X1(object):
                 for i in range(self.CH128X1_SUBFRAME_POINTS):
                     # sub frame per point
                     p = [18.00, -21.07, -1.18, 0.89]
-                    fx = p[0]
-                    fy = p[1]
-                    fz = p[2]
-                    fi = p[3]
+                    # fx = p[0]
+                    # fy = p[1]
+                    # fz = p[2]
+                    # fi = p[3]
+                    fx = (msop_counter%100+1.0)*(-1.5) #p[0]
+                    fy = (msop_counter%100+1.0)*1.5 #p[1]
+                    fz = (msop_counter%100+0.1)*0.05 #p[2]
+                    fi = 0.89 #p[3]
                     # distance, float32
                     dist = math.sqrt(fx**2 + fy**2)
                     # horizontal angle, float32
                     hori_angle = math.acos(fy/dist)*57.3
                     # vertical angle, float32
                     vert_angle = math.atan(fz/dist)*57.3
+                    # dist = 30.9
+                    # hori_angle = 100.0
+                    # vert_angle = -14.56
                     # line numer, int32
                     line_num = round((vert_angle - self.lower_fov) / self.vertical_resolution)
                     # g_logger.info("line_num: %d, vert_angle: %.2f", line_num, vert_angle)
                     self.sub_frame[0] = line_num
                     # horizontal angle, resolution 0.01 degree
-                    self.sub_frame[1] = int(hori_angle)
-                    self.sub_frame[2] = int(100*(hori_angle - int(hori_angle)))
+                    # self.sub_frame[1] = int(hori_angle)
+                    # self.sub_frame[2] = int(100*(hori_angle - int(hori_angle)))
+                    self.sub_frame[1:3] = struct.pack(">H", int(100*hori_angle))
                     # distance, resolution 1/256 cm
                     dist_cm = int(dist*100)
                     dist_residual = int(256*(dist*100 - dist_cm))
@@ -86,6 +94,7 @@ class LidarCH128X1(object):
                     # intensity, 0~255
                     self.sub_frame[6] = int(255*fi)
                     self.msop_frame[i*self.CH128X1_SUBFRAME_BYTES : (i+1)*self.CH128X1_SUBFRAME_BYTES] = self.sub_frame
+                    # self.msop_frame[i*self.CH128X1_SUBFRAME_BYTES : (i+1)*self.CH128X1_SUBFRAME_BYTES] = self.CH128X1_MSOP_HEADER
                 ts = self.make_timestamp(time.time())
                 # self.msop_frame[1197, 1198, 1199] = uint8(hr, min, sec)
                 self.msop_frame[1197] = int(ts[3])
@@ -115,6 +124,9 @@ class LidarCH128X1(object):
                 # send difop frame
                 difop_frame = bytearray(self.CH128X1_FRAME_SIZE)
                 difop_frame[0:8] = self.CH128X1_DIFOP_HEADER
+                motor_speed = 600 #rpm
+                difop_frame[8] = (motor_speed & 0xff00) >> 8
+                difop_frame[9] = (motor_speed & 0x00ff)
                 ts = self.make_timestamp(time.time())
                 difop_frame[52] = (int(ts[0]) - 2000) % 255 # year 0~255
                 difop_frame[53] = int(ts[1]) # month 1~12
@@ -126,7 +138,7 @@ class LidarCH128X1(object):
 
                 self.difop_udp_client.send_array(difop_frame)
                 difop_counter += 1
-                g_logger.info("lidar[%d] send difop frame, counter: %d, timestamp: %s", self.idx, difop_counter, str(ts))
+                g_logger.info("lidar[%d] send difop frame, counter: %d, motor_speed: %d, timestamp: %s", self.idx, difop_counter, motor_speed, str(ts))
             
             # time.sleep(0.1)
 

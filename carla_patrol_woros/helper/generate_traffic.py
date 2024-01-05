@@ -21,7 +21,7 @@ from numpy import random
 from helper.carla_utils import get_actor_blueprints
 
 
-def enable_random_traffic(client, no_rendering=False, number_of_vehicles=30, number_of_walkers=10, 
+def enable_random_traffic(client, no_rendering=False, number_of_vehicles=50, number_of_walkers=30, 
         tm_port=8000, sync=False, filterv='vehicle.*', generationv='all', filterw='walker.pedestrian.*', 
         generationw='2'):
 
